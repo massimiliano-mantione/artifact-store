@@ -1,0 +1,37 @@
+{
+  "name": "artifact-store",
+  "version": "0.0.1",
+  "description": "A tool to manage and deploy build artifacts.",
+  "main": "index.js",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/massimiliano-mantione/artifact-store.git"
+  },
+  "author": "Massimiliano Mantione",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/massimiliano-mantione/artifact-store/issues"
+  },
+  "homepage": "https://github.com/massimiliano-mantione/artifact-store#readme",
+  "dependencies": {
+    "any-promise": "0.1.0",
+    "nopt": "3.0.4",
+    "source-map-support": "0.3.2"
+  },
+  "devDependencies": {
+    "chai": "3.2.0",
+    "gulp": "3.9.0",
+    "gulp-mjs": "0.0.10",
+    "gulp-mjs-conventions": "0.0.6",
+    "meta-script": "0.0.47",
+    "mjs-check": "0.0.4",
+    "mocha": "2.3.2",
+    "mock-fs": "3.2.0",
+    "mocks": "0.0.15",
+    "module-loader": "0.0.8",
+    "string-streamer": "1.0.0"
+  }
+}
