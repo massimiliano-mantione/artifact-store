@@ -70,29 +70,6 @@ describe
           null
 
     it
-      "Can read files"
-      done ->
-        console.log "HO!"
-        ;var f = require 'fs'
-        ;var s = f.create-read-stream '/SSD/massi/artifact-store/README.md'
-        var f = fs
-        var s = f.create-read-stream '/a.txt'
-        s.set-encoding 'utf8'
-        s.on
-          'data'
-          ;#-> (dir-data += #it)
-          #->
-            console.log ("READING DATA: " + #it)
-        s.on
-          'error'
-          #-> (done #it)
-        s.on
-          'end'
-          #->
-            console.log ("READING DONE")
-            done()
-
-    it.only
       'Checks out a repository'
       done ->
         var repo = repo-builder '/repo'
