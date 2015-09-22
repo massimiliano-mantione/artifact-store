@@ -16,6 +16,7 @@ module.exports = {
     }
   }
   '/repo' : {}
+  '/repo2' : {}
   '/a.txt' : 'a'
   '/b.txt' : 'b'
   '/c.txt' : 'c'

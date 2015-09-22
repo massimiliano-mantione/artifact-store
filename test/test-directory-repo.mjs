@@ -1,6 +1,7 @@
 #external (describe, it, before-each)
 
 var
+  Promise = require 'any-promise'
   expect = (require 'chai').expect
   mock-fs = require 'mock-fs'
   directory-repo = require '../lib/directory-repo'
@@ -53,10 +54,14 @@ describe
 
     it
       'Sees files'
-      #->
+      done ->
         var repo = repo-builder '/dir2'
-        expect(repo.check 'f3.txt').to.equal true
-        expect(repo.check 'f1.txt').to.equal false
+        Promise.all ([
+          repo.check 'f3.txt'
+          repo.check 'f1.txt'
+        ]).then #->
+          expect(#it).to.eql([true, false])
+          done()
 
     it
       'Writes strings'
