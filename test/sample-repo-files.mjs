@@ -15,6 +15,11 @@ module.exports = {
       'f6.txt': 'f6'
     }
   }
+  '/dir3' : {
+    'f1.txt': 'f1'
+    'same.txt': 'same'
+    'f3.txt': 'f3'
+  }
   '/repo' : {}
   '/repo2' : {}
   '/a.txt' : 'a'

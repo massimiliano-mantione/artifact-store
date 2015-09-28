@@ -9,6 +9,8 @@ var
   checkout = require '../lib/checkout'
   pull = require '../lib/pull'
   copy = require '../lib/copy'
+  trim = require '../lib/trim'
+  sync = require '../lib/sync'
 
 var check = (fs, path, kind) ->
   try do
@@ -134,6 +136,57 @@ describe
               true
               true
               true
+              true
+            ])
+            done()
+          .catch #-> done #it
+
+    it
+      'Trim a repo'
+      done ->
+        var
+          repo1 = repo-builder '/dir1'
+          repo2 = repo-builder '/dir3'
+        |:
+          trim (repo1, repo2)
+          .then #->
+            Promise.all ([
+              repo2.check 'f1.txt'
+              repo2.check 'f2.txt'
+              repo2.check 'f3.txt'
+              repo2.check 'same.txt'
+            ])
+          .then #->
+            expect(#it).to.eql ([
+              true
+              false
+              false
+              true
+            ])
+            done()
+          .catch #-> done #it
+
+
+    it
+      'Sync a repo'
+      done ->
+        var
+          repo1 = repo-builder '/dir1'
+          repo2 = repo-builder '/dir3'
+        |:
+          sync (repo1, repo2)
+          .then #->
+            Promise.all ([
+              repo2.check 'f1.txt'
+              repo2.check 'f2.txt'
+              repo2.check 'f3.txt'
+              repo2.check 'same.txt'
+            ])
+          .then #->
+            expect(#it).to.eql ([
+              true
+              true
+              false
               true
             ])
             done()
