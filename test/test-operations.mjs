@@ -119,7 +119,7 @@ describe
         |:
           archive (repo, '/dir2', fs)
           .then #->
-            copy (repo, repo2, fs)
+            copy (repo, repo2)
           .then #->
             Promise.all ([
               repo2.check dir2-hash
