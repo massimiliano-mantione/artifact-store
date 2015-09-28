@@ -1,25 +1,22 @@
 
 Execution modes
 
+Source and destination are always repositories, unless where it is specified that they are regular directories (dir tree) or repository directories (repo dir).
+Every command reads from *source* and modifies *destination*.
+
 archive
-  directory (source)
-  repository (destination)
-  tag
-  tags-store
-  Recursively walks *directory* and stores everything in *repository*.
+  source (dir tree)
+  repository
+  tag (string)
+  tags-store (repository)
+  Recursively walks *source* and stores everything in *destination*.
   Finally stores that resulting hash as *tag* in *tag-store*.
 
 checkout
-  repository (source)
-  directory (destination)
+  source (repo dir)
+  destination (dir tree)
   hash
   Creates a tree of directories and hardlinks into *directory*, recreating the file tree described by *hash*.
-
-copy
-  source
-  destination
-  Copy every entry from the *source* trpository into the *destination* repository.
-  If both are directories, creates hardlinks instead of file copies.
 
 pull
   source
@@ -27,8 +24,24 @@ pull
   hash
   Ensure that *destination* contains every entry necessary to eventually checkout *hash* (pulling the needed entries from *source*).
 
+copy
+  source
+  destination
+  Copy every entry from the *source* repository into the *destination* repository.
+  If both are directories, creates hardlinks instead of file copies.
+
+trim
+  source
+  destination
+  Make sure that *destination* only contains entries that also *source* contains.
+
+sync
+  source
+  destination
+  Perform both a *trim* and a *copy* from *source* to *destination*.
+
 cleanup
-  repository
+  repository (repo dir)
   Remove every entry in *repository* that is referenced only once (will only work on directories for now).
 
 
@@ -65,6 +78,10 @@ Each repository is a plain object containing the following properties (those wit
   Writes an entry in the repository taking it from the file system.
   If possible create a hardlink, otherwise copy it into the repository.
   The promise resolves to *true* if an entry has been actually added to the repository.
+- for-each :: method
+  (hash :: string -> Promise<>) -> Promise<>
+  For each repository entry, invoke the provided callback passing the entry hash as argument. The returned promise resolves when all the promises returned by the callbacks have resolved.
+
 
 The above methods are the basic building blocks that implement a repository (the "core", similar to the plumbing in git).
 Higher level functions can be written that take repositories as arguments, but their implementation should not depend on repository internals (they should just invoke the core methods).

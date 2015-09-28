@@ -118,3 +118,24 @@ describe
             done()
           .catch #->
             done #it
+
+    it
+      'Lists files'
+      done ->
+        var
+          repo = repo-builder '/dir1'
+          entries = {}
+          callback = #->
+            entries[#it] = true
+            Promise.resolve undefined
+        |:
+          repo.for-each callback
+          .then #->
+            expect(entries).to.eql {
+              'f1.txt': true
+              'f2.txt': true
+              'same.txt': true
+            }
+            done()
+          .catch #->
+            done #it
