@@ -8,6 +8,7 @@ var
   archive = require '../lib/archive'
   checkout = require '../lib/checkout'
   pull = require '../lib/pull'
+  copy = require '../lib/copy'
 
 var check = (fs, path, kind) ->
   try do
@@ -34,7 +35,7 @@ var
     'f:ff3390557335ba88d37755e41514beb03bc499ec:same.txt'].join '/'
 
 describe
-  "Archive operation"
+  "Operations"
   #->
     var (fs, repo-builder, file?, directory?, link?, contents)
 
@@ -50,7 +51,7 @@ describe
           null
 
     it
-      'Archives directories'
+      'Archive directories'
       done ->
         var repo = repo-builder '/repo'
         archive (repo, '/dir2', fs) |:
@@ -61,24 +62,8 @@ describe
             done()
           .catch #-> done #it
 
-describe
-  "Checkout operation"
-  #->
-    var (fs, repo-builder, file?, directory?, link?, contents)
-
-    before-each #->
-      fs = mock-fs.fs (require './sample-repo-files')
-      repo-builder = #-> directory-repo (#it, fs)
-      directory? = #-> check (fs, #it, 'directory')
-      file? = #-> check (fs, #it, 'file')
-      contents = #->
-        try
-          fs.read-file-sync (#it, 'utf8')
-        catch (var e)
-          null
-
     it
-      'Checks out a repository'
+      'Check out a repository'
       done ->
         var repo = repo-builder '/repo'
         |:
@@ -96,24 +81,8 @@ describe
             done()
           .catch #-> done #it
 
-describe
-  "Pull operation"
-  #->
-    var (fs, repo-builder, file?, directory?, link?, contents)
-
-    before-each #->
-      fs = mock-fs.fs (require './sample-repo-files')
-      repo-builder = #-> directory-repo (#it, fs)
-      directory? = #-> check (fs, #it, 'directory')
-      file? = #-> check (fs, #it, 'file')
-      contents = #->
-        try
-          fs.read-file-sync (#it, 'utf8')
-        catch (var e)
-          null
-
     it
-      'Pulls a hash'
+      'Pull a hash'
       done ->
         var
           repo = repo-builder '/repo'
@@ -122,6 +91,35 @@ describe
           archive (repo, '/dir2', fs)
           .then #->
             pull (repo, repo2, dir2-hash)
+          .then #->
+            Promise.all ([
+              repo2.check dir2-hash
+              repo2.check dir3-hash
+              repo2.check f3-hash
+              repo2.check f4-hash
+              repo2.check same-hash
+            ])
+          .then #->
+            expect(#it).to.eql ([
+              true
+              true
+              true
+              true
+              true
+            ])
+            done()
+          .catch #-> done #it
+
+    it
+      'Copy a repo'
+      done ->
+        var
+          repo = repo-builder '/repo'
+          repo2 = repo-builder '/repo2'
+        |:
+          archive (repo, '/dir2', fs)
+          .then #->
+            copy (repo, repo2, fs)
           .then #->
             Promise.all ([
               repo2.check dir2-hash
