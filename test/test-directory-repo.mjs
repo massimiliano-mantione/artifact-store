@@ -5,6 +5,7 @@ var
   expect = (require 'chai').expect
   mock-fs = require 'mock-fs'
   directory-repo = require '../lib/directory-repo'
+  commands = require '../lib/commands'
 
 var check = (fs, path, kind) ->
   try do
@@ -19,143 +20,170 @@ var check = (fs, path, kind) ->
     false
 
 describe
-  "Directory repository"
+  "Repositories"
   #->
-    var (fs, repo-builder, file?, directory?, link?, contents)
+    var env
+    var directory-repo-builder = #-> directory-repo (#it, env.fs)
 
     before-each #->
-      fs = mock-fs.fs (require './sample-repo-files')
-      repo-builder = #-> directory-repo (#it, fs)
-      directory? = #-> check (fs, #it, 'directory')
-      file? = #-> check (fs, #it, 'file')
-      contents = #->
+      env = {}
+      env.fs = mock-fs.fs (require './sample-repo-files')
+      env.repo-builder = null
+      env.directory? = #-> check (env.fs, #it, 'directory')
+      env.file? = #-> check (env.fs, #it, 'file')
+      env.contents = #->
         try
-          fs.read-file-sync (#it, 'utf8')
+          env.fs.read-file-sync (#it, 'utf8')
         catch (var e)
           null
 
-    it
-      'Sees the file system'
-      #->
-        expect(directory? '/a.txt').to.equal false
-        expect(directory? '/f3.txt').to.equal false
-        expect(directory? '/dir2/dir3').to.equal true
-        expect(file? '/a.txt').to.equal true
-        expect(file? '/f3.txt').to.equal false
-        expect(file? '/dir2/dir3').to.equal false
-        expect(contents '/a.txt').to.equal 'a'
+    var describe-repository = (kind, builder) ->
+      describe
+        'Repository of kind ' + kind
+        #->
+          before-each #->
+            env.repo-builder = builder
 
-    it
-      'Builds file names'
-      #->
-        var repo = repo-builder '/dir2'
-        expect(repo.file 'f3.txt').to.equal '/dir2/f3.txt'
-        expect(repo.file 'f1.txt').to.equal '/dir2/f1.txt'
+          it
+            'Sees the file system'
+            #->
+              expect(env.directory? '/a.txt').to.equal false
+              expect(env.directory? '/f3.txt').to.equal false
+              expect(env.directory? '/dir2/dir3').to.equal true
+              expect(env.file? '/a.txt').to.equal true
+              expect(env.file? '/f3.txt').to.equal false
+              expect(env.file? '/dir2/dir3').to.equal false
+              expect(env.contents '/a.txt').to.equal 'a'
 
-    it
-      'Sees files'
-      done ->
-        var repo = repo-builder '/dir2'
-        Promise.all ([
-          repo.check 'f3.txt'
-          repo.check 'f1.txt'
-        ]).then #->
-          expect(#it).to.eql([true, false])
-          done()
+          it
+            'Builds file names'
+            #->
+              var repo = env.repo-builder '/dir2'
+              expect(repo.file 'f3.txt').to.equal '/dir2/f3.txt'
+              expect(repo.file 'f1.txt').to.equal '/dir2/f1.txt'
 
-    it
-      'Writes strings'
-      done ->
-        var repo = repo-builder '/dir2'
-        expect(file? '/dir2/new.txt').to.equal false
-        |:
-          repo.write ('new.txt', 'new')
-          .then #->
-            expect(#it).to.equal true
-            expect(file? '/dir2/new.txt').to.equal true
-            expect(contents '/dir2/new.txt').to.equal 'new'
-            done()
-          .catch #->
-            done #it
+          it
+            'Sees files'
+            done ->
+              var repo = env.repo-builder '/dir2'
+              Promise.all ([
+                repo.check 'f3.txt'
+                repo.check 'f1.txt'
+              ]).then #->
+                expect(#it).to.eql([true, false])
+                done()
 
-    it
-      'Writes streams'
-      done ->
-        var repo = repo-builder '/dir2'
-        expect(file? '/dir2/new.txt').to.equal false
-        |:
-          repo.write ('new.txt', repo.read 'f3.txt')
-          .then #->
-            expect(#it).to.equal true
-            expect(file? '/dir2/new.txt').to.equal true
-            expect(contents '/dir2/new.txt').to.equal 'f3'
-            done()
-          .catch #->
-            done #it
+          it
+            'Writes strings'
+            done ->
+              var repo = env.repo-builder '/dir2'
+              |:
+                repo.check 'new.txt'
+                .then #->
+                  expect(#it).to.equal false
+                  repo.write ('new.txt', 'new')
+                .then #->
+                  expect(#it).to.equal true
+                  repo.check 'new.txt'
+                .then #->
+                  expect(#it).to.equal true
+                  commands.read-text(repo, 'new.txt')
+                .then #->
+                  expect(#it).to.equal 'new'
+                  done()
+                .catch #->
+                  done #it
 
-    it
-      'Copies a new file'
-      done ->
-        var repo = repo-builder '/dir2'
-        |:
-          repo.write-file ('f1.txt', '/dir1/f1.txt')
-          .then #->
-            expect(#it).to.equal true
-            expect(file? '/dir2/f1.txt').to.equal true
-            expect(contents '/dir2/f1.txt').to.equal 'f1'
-            done()
-          .catch #->
-            done #it
+          it
+            'Writes streams'
+            done ->
+              var repo = env.repo-builder '/dir2'
+              |:
+                repo.check 'new.txt'
+                .then #->
+                  expect(#it).to.equal false
+                  repo.write ('new.txt', repo.read 'f3.txt')
+                .then #->
+                  expect(#it).to.equal true
+                  repo.check 'new.txt'
+                .then #->
+                  expect(#it).to.equal true
+                  commands.read-text(repo, 'new.txt')
+                .then #->
+                  expect(#it).to.equal 'f3'
+                  done()
+                .catch #->
+                  done #it
 
-    it
-      'Does not copy an existing file'
-      done ->
-        var repo = repo-builder '/dir2'
-        |:
-          repo.write-file ('same.txt', '/dir1/same.txt')
-          .then #->
-            expect(#it).to.equal false
-            done()
-          .catch #->
-            done #it
+          it
+            'Copies a new file'
+            done ->
+              var repo = env.repo-builder '/dir2'
+              |:
+                repo.write-file ('f1.txt', '/dir1/f1.txt')
+                .then #->
+                  expect(#it).to.equal true
+                  repo.check 'f1.txt'
+                .then #->
+                  expect(#it).to.equal true
+                  commands.read-text(repo, 'f1.txt')
+                .then #->
+                  expect(#it).to.equal 'f1'
+                  done()
+                .catch #->
+                  done #it
 
-    it
-      'Lists entries'
-      done ->
-        var
-          repo = repo-builder '/dir1'
-          entries = {}
-          callback = #->
-            entries[#it] = true
-            Promise.resolve()
-        |:
-          repo.for-each callback
-          .then #->
-            expect(entries).to.eql {
-              'f1.txt': true
-              'f2.txt': true
-              'same.txt': true
-            }
-            done()
-          .catch #->
-            done #it
+          it
+            'Does not copy an existing file'
+            done ->
+              var repo = env.repo-builder '/dir2'
+              |:
+                repo.write-file ('same.txt', '/dir1/same.txt')
+                .then #->
+                  expect(#it).to.equal false
+                  done()
+                .catch #->
+                  done #it
 
-    it
-      'Removes entries'
-      done ->
-        var
-          repo = repo-builder '/dir1'
-        |:
-          repo.remove 'same.txt'
-          .then #->
-            expect(#it).to.equal undefined
-            Promise.resolve()
-          .catch #->
-            done #it
-          .then #->
-            repo.remove 'none.txt'
-          .then #->
-            done 'Error expected'
-          .catch #->
-            expect(#it.message).to.contain 'ENOENT'
-            done()
+          it
+            'Lists entries'
+            done ->
+              var
+                repo = env.repo-builder '/dir1'
+                entries = {}
+                callback = #->
+                  entries[#it] = true
+                  Promise.resolve()
+              |:
+                repo.for-each callback
+                .then #->
+                  expect(entries).to.eql {
+                    'f1.txt': true
+                    'f2.txt': true
+                    'same.txt': true
+                  }
+                  done()
+                .catch #->
+                  done #it
+
+          it
+            'Removes entries'
+            done ->
+              var
+                repo = env.repo-builder '/dir1'
+              |:
+                repo.remove 'same.txt'
+                .then #->
+                  expect(#it).to.equal undefined
+                  Promise.resolve()
+                .catch #->
+                  done #it
+                .then #->
+                  repo.remove 'none.txt'
+                .then #->
+                  done 'Error expected'
+                .catch #->
+                  expect(#it.message).to.contain 'ENOENT'
+                  done()
+
+    describe-repository('directory', directory-repo-builder)
