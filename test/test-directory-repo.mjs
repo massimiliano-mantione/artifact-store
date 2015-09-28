@@ -120,14 +120,14 @@ describe
             done #it
 
     it
-      'Lists files'
+      'Lists entries'
       done ->
         var
           repo = repo-builder '/dir1'
           entries = {}
           callback = #->
             entries[#it] = true
-            Promise.resolve undefined
+            Promise.resolve()
         |:
           repo.for-each callback
           .then #->
@@ -139,3 +139,23 @@ describe
             done()
           .catch #->
             done #it
+
+    it
+      'Removes entries'
+      done ->
+        var
+          repo = repo-builder '/dir1'
+        |:
+          repo.remove 'same.txt'
+          .then #->
+            expect(#it).to.equal undefined
+            Promise.resolve()
+          .catch #->
+            done #it
+          .then #->
+            repo.remove 'none.txt'
+          .then #->
+            done 'Error expected'
+          .catch #->
+            expect(#it.message).to.contain 'ENOENT'
+            done()

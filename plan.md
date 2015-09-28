@@ -81,7 +81,9 @@ Each repository is a plain object containing the following properties (those wit
 - for-each :: method
   (hash :: string -> Promise<>) -> Promise<>
   For each repository entry, invoke the provided callback passing the entry hash as argument. The returned promise resolves when all the promises returned by the callbacks have resolved.
-
+- remove :: method
+  (hash :: string) -> Promise<>
+  Remove the entry identified by *hash*.
 
 The above methods are the basic building blocks that implement a repository (the "core", similar to the plumbing in git).
 Higher level functions can be written that take repositories as arguments, but their implementation should not depend on repository internals (they should just invoke the core methods).
