@@ -45,8 +45,12 @@ var describe-repository = (kind, env) ->
         'Builds file names'
         #->
           var repo = env.repo-builder '/dir2'
-          expect(repo.file 'f3.txt').to.equal '/dir2/f3.txt'
-          expect(repo.file 'f1.txt').to.equal '/dir2/f1.txt'
+          expect(repo.file 'f3.txt').to.equal
+            if (env.has-files) '/dir2/f3.txt'
+            else null
+          expect(repo.file 'f1.txt').to.equal
+            if (env.has-files) '/dir2/f1.txt'
+            else null
 
       it
         'Sees files'
@@ -179,6 +183,7 @@ describe
 
     env.before = #->
     env.after = #->
+    env.has-files = true
     env.before-each = #->
       env.fs = mock-fs.fs (require './sample-repo-files')
       env.repo-builder = #-> directory-repo (#it, env.fs)
