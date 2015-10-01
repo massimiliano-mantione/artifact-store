@@ -19,10 +19,11 @@ var check = (fs, path, kind) ->
   catch (var e)
     false
 
-var describe-repository = (kind, env) ->
+var describe-repository = (kind, env-builder) ->
   describe
     'Repository of kind ' + kind
     #->
+      var env = env-builder()
       before #->
         env.before()
       after #->
@@ -179,20 +180,21 @@ var describe-repository = (kind, env) ->
 describe
   "Repositories"
   #->
-    var env = {}
+    var dir-env-builder = #->
+      var env = {}
+      env.before = #->
+      env.after = #->
+      env.has-files = true
+      env.before-each = #->
+        env.fs = mock-fs.fs (require './sample-repo-files')
+        env.repo-builder = #-> directory-repo (#it, env.fs)
+        env.directory? = #-> check (env.fs, #it, 'directory')
+        env.file? = #-> check (env.fs, #it, 'file')
+        env.contents = #->
+          try
+            env.fs.read-file-sync (#it, 'utf8')
+          catch (var e)
+            null
+      env
 
-    env.before = #->
-    env.after = #->
-    env.has-files = true
-    env.before-each = #->
-      env.fs = mock-fs.fs (require './sample-repo-files')
-      env.repo-builder = #-> directory-repo (#it, env.fs)
-      env.directory? = #-> check (env.fs, #it, 'directory')
-      env.file? = #-> check (env.fs, #it, 'file')
-      env.contents = #->
-        try
-          env.fs.read-file-sync (#it, 'utf8')
-        catch (var e)
-          null
-
-    describe-repository('directory', env)
+    describe-repository('directory', dir-env-builder)
