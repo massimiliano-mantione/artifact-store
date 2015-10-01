@@ -53,7 +53,7 @@ describe
           null
 
     it
-      'Archive directories'
+      'Archive a directory'
       done ->
         var repo = repo-builder '/repo'
         archive (repo, '/dir2', fs) |:
@@ -65,7 +65,7 @@ describe
           .catch #-> done #it
 
     it
-      'Check out a repository'
+      'Check out a hash'
       done ->
         var repo = repo-builder '/repo'
         |:
