@@ -26,6 +26,16 @@ var check = (fs, path, kind) ->
   catch (var e)
     false
 
+var common-env-init = env ->
+    env.fs = mock-fs.fs (require './sample-repo-files')
+    env.directory? = #-> check (env.fs, #it, 'directory')
+    env.file? = #-> check (env.fs, #it, 'file')
+    env.contents = #->
+      try
+        env.fs.read-file-sync (#it, 'utf8')
+      catch (var e)
+        null
+
 var describe-repository = (kind, env-builder) ->
   describe
     'Repository of kind ' + kind
@@ -212,16 +222,9 @@ describe
       env.after = done -> done()
       env.has-files = true
       env.before-each = done ->
-        env.fs = mock-fs.fs (require './sample-repo-files')
+        common-env-init env
         env.repo-builder = #->
           Promise.resolve directory-repo ('/' + #it, env.fs)
-        env.directory? = #-> check (env.fs, #it, 'directory')
-        env.file? = #-> check (env.fs, #it, 'file')
-        env.contents = #->
-          try
-            env.fs.read-file-sync (#it, 'utf8')
-          catch (var e)
-            null
         done()
       env
 
@@ -243,7 +246,7 @@ describe
         env.server.close done
       env.has-files = false
       env.before-each = done ->
-        env.fs = mock-fs.fs (require './sample-repo-files')
+        common-env-init env
         env.bucket-data = {
           'dir1' : {
             'f1.txt': 'f1'
@@ -256,6 +259,7 @@ describe
             'same.txt': 'same'
           }
         }
+        done()
         env.repo-builder = name -> new Promise
           (resolve, reject) ->
             env.s3 = fortknox.createClient {
@@ -280,14 +284,6 @@ describe
             init-s3-bucket(bucket-data) |:
               .then #-> resolve s3-repo(env.s3, env.fs)
               .catch #-> reject #it
-        env.directory? = #-> check (env.fs, #it, 'directory')
-        env.file? = #-> check (env.fs, #it, 'file')
-        env.contents = #->
-          try
-            env.fs.read-file-sync (#it, 'utf8')
-          catch (var e)
-            null
-        done()
       env
 
     describe-repository('s3', s3-env-builder)
