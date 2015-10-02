@@ -6,9 +6,13 @@ var
   mock-fs = require 'mock-fs'
   S3rver = require 's3rver'
   fortknox = require 'fortknox'
-  directory-repo = require '../lib/directory-repo'
-  commands = require '../lib/commands'
   init-s3-bucket = require './init-s3-bucket'
+  directory-repo = require '../lib/directory-repo'
+  s3-repo = require '../lib/s3-repo'
+  s3-utils = require '../lib/s3-utils'
+  commands = require '../lib/commands'
+
+s3-utils.use-mpu = false
 
 var check = (fs, path, kind) ->
   try do
@@ -106,7 +110,10 @@ var describe-repository = (kind, env-builder) ->
               repo.check 'new.txt'
             .then #->
               expect(#it).to.equal false
-              repo.write ('new.txt', repo.read 'f3.txt')
+              repo.read 'f3.txt'
+            .then #->
+              expect(#it != null).to.equal true
+              repo.write ('new.txt', #it)
             .then #->
               expect(#it).to.equal true
               repo.check 'new.txt'
@@ -194,7 +201,6 @@ var describe-repository = (kind, env-builder) ->
             .then #->
               done 'Error expected'
             .catch #->
-              expect(#it.message).to.contain 'ENOENT'
               done()
 
 describe
@@ -223,13 +229,14 @@ describe
 
     var s3-env-builder = #->
       var env = {}
+      env.s3rver-directory = '/tmp/s3rver_test_directory'
       env.before = done ->
         env.server = init-s3-bucket.run-server
           {
             port: 10001
             hostname: 'localhost'
             silent: true ; put false here to debug the server
-            directory: '/tmp/s3rver_test_directory'
+            directory: env.s3rver-directory
           }
           done
       env.after = done ->
@@ -261,10 +268,17 @@ describe
             }
             var bucket-data = {
               client: env.s3
-              objects: env.data[name]
+              objects: env.bucket-data[name]
             }
+            var
+              rimraf = require 'rimraf'
+              mkdirp = require 'mkdirp'
+              path = env.s3rver-directory + '/' + name
+
+            mkdirp.sync path
+            rimraf.sync path
             init-s3-bucket(bucket-data) |:
-              .then #-> resolve null ; put repo here!!!
+              .then #-> resolve s3-repo(env.s3, env.fs)
               .catch #-> reject #it
         env.directory? = #-> check (env.fs, #it, 'directory')
         env.file? = #-> check (env.fs, #it, 'file')
@@ -273,4 +287,7 @@ describe
             env.fs.read-file-sync (#it, 'utf8')
           catch (var e)
             null
+        done()
       env
+
+    describe-repository('s3', s3-env-builder)

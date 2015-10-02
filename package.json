@@ -20,10 +20,11 @@
     "any-promise": "0.1.0",
     "fortknox": "0.1.1",
     "knox": "0.9.2",
+    "knox-mpu": "0.1.6",
     "nopt": "3.0.4",
-    "s3": "4.4.0",
     "s3-lister": "0.1.0",
-    "source-map-support": "0.3.2"
+    "source-map-support": "0.3.2",
+    "stream-buffers": "^2.2.0"
   },
   "devDependencies": {
     "chai": "3.2.0",
@@ -38,7 +39,8 @@
     "mock-s3": "1.0.2",
     "mocks": "0.0.15",
     "module-loader": "0.0.8",
+    "rimraf": "2.4.3",
     "s3rver": "0.0.8",
-    "string-streamer": "1.0.0"
+    "string-streamer": "^1.0.0"
   }
 }

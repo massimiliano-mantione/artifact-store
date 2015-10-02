@@ -39,7 +39,9 @@ init-bucket.run-server =
     var
       fs = require 'fs'
       mkdirp = require 'mkdirp'
-    mkdirp config.directory
+      rimraf = require 'rimraf'
+    rimraf.sync config.directory
+    mkdirp.sync config.directory
     (new S3rver(config)).run
       (err, host, port) -> do!
         if (err) cb err
