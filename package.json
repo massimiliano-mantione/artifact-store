@@ -6,6 +6,9 @@
   "scripts": {
     "test": "gulp test"
   },
+  "bin": {
+    "arts": ""
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/massimiliano-mantione/artifact-store.git"
@@ -24,7 +27,7 @@
     "nopt": "3.0.4",
     "s3-lister": "0.1.0",
     "source-map-support": "0.3.2",
-    "stream-buffers": "^2.2.0"
+    "stream-buffers": "2.2.0"
   },
   "devDependencies": {
     "chai": "3.2.0",
