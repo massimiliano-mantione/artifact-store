@@ -67,7 +67,7 @@ describe
           .catch #-> done #it
 
     it
-      'Check out a hash'
+      'Check out a tag'
       done ->
         var repo = repo-builder '/repo'
         |:
@@ -86,7 +86,7 @@ describe
           .catch #-> done #it
 
     it
-      'Pull a hash'
+      'Pull a tag'
       done ->
         var
           repo = repo-builder '/repo'
@@ -94,7 +94,7 @@ describe
         |:
           archive (repo, '/dir2', dir2-tag, fs)
           .then #->
-            pull (repo, repo2, dir2-hash)
+            pull (repo, repo2, dir2-tag)
           .then #->
             Promise.all ([
               repo2.check dir2-hash
