@@ -73,7 +73,7 @@ describe
         |:
           archive (repo, '/dir2', dir2-tag, fs)
           .then #->
-            checkout (repo, '/checkout', dir2-hash, fs)
+            checkout (repo, '/checkout', dir2-tag, fs)
           .then #->
             expect(#it).to.equal true
             expect(directory? '/checkout').to.equal true
