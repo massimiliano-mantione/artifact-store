@@ -25,16 +25,16 @@ var check = (fs, path, kind) ->
     false
 
 var
-  dir2-hash = '08ca5ef9f6dacf99bc351469faddd383ac2a9fac'
-  dir3-hash = '026e49de20317e07cc8647d67307ad9be27e4a29'
-  f3-hash = '619aae029dda528253a6af0ba619b45baa1df115'
-  f4-hash = 'adfec5772ae8932aa10896037b0779bec915015b'
-  same-hash = 'ff3390557335ba88d37755e41514beb03bc499ec'
+  dir2-hash = 'D-91168c13aa4283bb352aee5251d08f54abc255ad'
+  dir3-hash = 'D-cad9d91ad47f5348e6573e5d25814e30db8e4c52'
+  f3-hash = 'F-619aae029dda528253a6af0ba619b45baa1df115'
+  f4-hash = 'F-adfec5772ae8932aa10896037b0779bec915015b'
+  same-hash = 'F-ff3390557335ba88d37755e41514beb03bc499ec'
   dir2-data = [
-    'd:026e49de20317e07cc8647d67307ad9be27e4a29:dir3'
-    'f:619aae029dda528253a6af0ba619b45baa1df115:f3.txt'
-    'f:adfec5772ae8932aa10896037b0779bec915015b:f4.txt'
-    'f:ff3390557335ba88d37755e41514beb03bc499ec:same.txt'].join '/'
+    'd:D-cad9d91ad47f5348e6573e5d25814e30db8e4c52:dir3'
+    'f:F-619aae029dda528253a6af0ba619b45baa1df115:f3.txt'
+    'f:F-adfec5772ae8932aa10896037b0779bec915015b:f4.txt'
+    'f:F-ff3390557335ba88d37755e41514beb03bc499ec:same.txt'].join '/'
 
 describe
   "Operations"
