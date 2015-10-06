@@ -35,13 +35,10 @@ describe
         expect(args.source).to.equal null
         expect(args.destination).to.equal null
         expect(args.tag).to.equal null
-        expect(args.names).to.equal null
-        expect(args.hash).to.equal null
         expect(args.error).to.equal null
         expect(typeof args.check-store).to.equal 'function'
         expect(args.check-store 'source').to.contain 'not specified'
         expect(args.check-store 'destination').to.contain 'not specified'
-        expect(args.check-store 'names').to.contain 'not specified'
 
     it
       'Recognizes cp shortcut'
@@ -52,14 +49,15 @@ describe
     it
       'Expands paths'
       #->
-        var args = options split '-cp -src a.txt -dst ../b.txt -names dir3/f5.txt'
+        var args = options split '-cp -src a.txt -dst ../b.txt'
         expect(args.command).to.equal 'copy'
         expect(args.source).to.equal '/dir2/a.txt'
         expect(args.destination).to.equal '/b.txt'
-        expect(args.names).to.equal '/dir2/dir3/f5.txt'
         expect(args.check-store 'source').to.contain 'Cannot access'
         expect(args.check-store 'destination').to.contain 'not a directory'
-        expect(args.check-store 'names').to.contain 'not a directory'
+        args = options split '-cp -src a.txt -dst dir3/f5.txt'
+        expect(args.destination).to.equal '/dir2/dir3/f5.txt'
+        expect(args.check-store 'destination').to.contain 'not a directory'
 
     it
       'Recognizes directories and s3 urls'
@@ -68,7 +66,8 @@ describe
         expect(args.command).to.equal 'copy'
         expect(args.source).to.equal '/dir1'
         expect(args.destination).to.equal '/dir2/dir3'
-        expect(args.names).to.equal 's3:/remote.bucket'
         expect(args.check-store 'source').to.equal null
         expect(args.check-store 'destination').to.equal null
-        expect(args.check-store 'names').to.equal null
+        args = options split '-cp -src /dir1 -dst s3:/remote.bucket'
+        expect(args.destination).to.equal 's3:/remote.bucket'
+        expect(args.check-store 'destination').to.equal null
