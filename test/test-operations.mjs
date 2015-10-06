@@ -35,6 +35,7 @@ var
     'f:F-619aae029dda528253a6af0ba619b45baa1df115:f3.txt'
     'f:F-adfec5772ae8932aa10896037b0779bec915015b:f4.txt'
     'f:F-ff3390557335ba88d37755e41514beb03bc499ec:same.txt'].join '/'
+  dir2-tag = 'DIR2-v1'
 
 describe
   "Operations"
@@ -56,11 +57,12 @@ describe
       'Archive a directory'
       done ->
         var repo = repo-builder '/repo'
-        archive (repo, '/dir2', fs) |:
+        archive (repo, '/dir2', dir2-tag, fs) |:
           .then #->
             expect(#it).to.equal dir2-hash
             expect(file? ('/repo/' + dir2-hash)).to.equal true
             expect(contents ('/repo/' + dir2-hash)).to.equal dir2-data
+            expect(contents ('/repo/' + 'T-' + dir2-tag)).to.equal dir2-hash
             done()
           .catch #-> done #it
 
@@ -69,7 +71,7 @@ describe
       done ->
         var repo = repo-builder '/repo'
         |:
-          archive (repo, '/dir2', fs)
+          archive (repo, '/dir2', dir2-tag, fs)
           .then #->
             checkout (repo, '/checkout', dir2-hash, fs)
           .then #->
@@ -90,7 +92,7 @@ describe
           repo = repo-builder '/repo'
           repo2 = repo-builder '/repo2'
         |:
-          archive (repo, '/dir2', fs)
+          archive (repo, '/dir2', dir2-tag, fs)
           .then #->
             pull (repo, repo2, dir2-hash)
           .then #->
@@ -119,7 +121,7 @@ describe
           repo = repo-builder '/repo'
           repo2 = repo-builder '/repo2'
         |:
-          archive (repo, '/dir2', fs)
+          archive (repo, '/dir2', dir2-tag, fs)
           .then #->
             copy (repo, repo2)
           .then #->
